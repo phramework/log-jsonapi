@@ -54,6 +54,8 @@ class QueryLogTest extends \PHPUnit_Framework_TestCase
     {
         $data = QueryLog::get();
 
+        $this->assertNotEmpty($data);
+
         $this->assertInternalType('array', $data);
 
         $this->assertInternalType('object', $data[0]);
@@ -73,10 +75,13 @@ class QueryLogTest extends \PHPUnit_Framework_TestCase
     {
         $data = QueryLog::getById($id);
 
-        var_dump($data);
+        $this->assertNotNull($data);
 
         $this->assertInternalType('object', $data);
         $this->assertObjectHasAttribute('id', $data);
+        $this->assertObjectHasAttribute('type', $data);
+        $this->assertObjectHasAttribute('attributes', $data);
+
         $this->assertSame($id, $data->id);
     }
 }

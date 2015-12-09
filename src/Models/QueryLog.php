@@ -17,7 +17,6 @@
 
 namespace Phramework\QueryLogJSONAPI\Models;
 
-use \Phramework\Database\Database;
 use \Phramework\JSONAPI\Relationship;
 
 /**
@@ -30,15 +29,41 @@ class QueryLog extends \Phramework\JSONAPI\Model
     protected static $endpoint = 'query_log';
     protected static $table = 'query_log';
 
+    public static function getFilterable()
+    {
+        return [
+            'duration' => Operator::CLASS_ORDERABLE,
+            'created_timestamp' => Operator::CLASS_ORDERABLE
+        ];
+    }
+
+    public static function getSort()
+    {
+        return (object)[
+            'attributes' => ['id', 'created_timestamp', 'duration'],
+            'default' => 'id',
+            'ascending' => false
+        ];
+    }
+
     /**
      * Get all entries
      * @return \stdClass[]
      */
-    public static function get()
+    public static function get($page = null, $filter = null, $sort = null)
     {
-        $records = Database::executeAndFetchAll(
-            'SELECT * FROM "query_log"'
+        $query = self::handleGet(
+            'SELECT * FROM "query_log"
+              {{filter}}
+              {{sort}}
+              {{pagination}}',
+            $page,
+            $filter,
+            $sort,
+            false
         );
+
+        $records = QueryLogAdapter::executeAndFetchAll($query);
 
         foreach ($records as &$record) {
             $record['parameters'] = json_decode($record['parameters']);
@@ -56,7 +81,7 @@ class QueryLog extends \Phramework\JSONAPI\Model
      */
     public static function getById($id)
     {
-        $record = Database::executeAndFetch(
+        $record = QueryLogAdapter::executeAndFetch(
             'SELECT *
             FROM "query_log"
             WHERE "id" = ?
