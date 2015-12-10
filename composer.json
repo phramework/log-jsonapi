@@ -28,8 +28,8 @@
   },
   "require": {
     "php": ">=5.6",
-    "phramework/phramework": "^1.0.0",
-    "phramework/jsonapi": "dev-master",
+    "phramework/phramework": "^1.0.3",
+    "phramework/jsonapi": "^0.0.0",
     "phramework/query-log": "dev-master",
     "ext-pdo": "*",
     "ext-pdo_mysql": "*"

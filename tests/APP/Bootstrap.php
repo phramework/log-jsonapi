@@ -20,9 +20,13 @@ use \Phramework\Phramework;
 
 class Bootstrap
 {
+    /**
+     * @return array
+     */
     public static function getSettings()
     {
         $settings = [
+            'debug' => true,
             'query-log' => [
                 'database' => [
                     'adapter' => '\\Phramework\\Database\\MySQL',
@@ -46,35 +50,28 @@ class Bootstrap
      * Prepare a phramework instance.
      *
      * @uses Bootstrap::getSettings() to fetch the settings
-     *
      * @return Phramework
      */
     public static function prepare()
     {
         $settings = self::getSettings();
-        
+
         $phramework = new Phramework(
             $settings,
-            new \Phramework\URIStrategy\URITemplate(
+            new \Phramework\URIStrategy\URITemplate([
                 [
-                    [
-                        'query_log/',
-                        \Phramework\QueryLogJSONAPI\Controllers\QueryLogController::class,
-                        'GET',
-                        Phramework::METHOD_GET
-                    ],
-                    [
-                        'query_log/{id}',
-                        \Phramework\QueryLogJSONAPI\Controllers\QueryLogController::class,
-                        'GETById',
-                        Phramework::METHOD_GET
-                    ]
+                    'query_log/',
+                    \Phramework\QueryLogJSONAPI\Controllers\QueryLogController::class,
+                    'GET',
+                    Phramework::METHOD_GET
+                ],
+                [
+                    'query_log/{id}',
+                    \Phramework\QueryLogJSONAPI\Controllers\QueryLogController::class,
+                    'GETById',
+                    Phramework::METHOD_GET
                 ]
-            )
-        );
-
-        \Phramework\Database\Database::setAdapter(
-            new \Phramework\Database\MySQL($settings['query-log']['database'])
+            ])
         );
     }
 }

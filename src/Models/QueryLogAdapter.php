@@ -23,5 +23,33 @@ namespace Phramework\QueryLogJSONAPI\Models;
  */
 class QueryLogAdapter extends \Phramework\Database\Database
 {
+    /**
+     * @var IAdapter
+     */
+    protected static $adapter = null;
 
+    public static function prepare()
+    {
+        if (static::$adapter !== null) {
+            return;
+        }
+
+        $dbSettings = \Phramework\Phramework::getSetting(
+            'query-log',
+            'database'
+        );
+
+        $adapterNamespace = $dbSettings['adapter'];
+
+        $adapter = new $adapterNamespace($dbSettings);
+
+        if (!($adapter instanceof \Phramework\Database\IAdapter)) {
+            throw new \Exception(sprintf(
+                'Class "%s" is not implementing \Phramework\Database\IAdapter',
+                $adapterNamespace
+            ));
+        }
+
+        static::setAdapter($adapter);
+    }
 }

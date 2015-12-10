@@ -52,9 +52,22 @@ class QueryLogTest extends \PHPUnit_Framework_TestCase
      */
     public function testGet()
     {
-        $data = QueryLog::get();
+        $page = (object)[
+            'limit' => 2,
+            'offset' => 1
+        ];
+
+        $sort = (object)[
+            'attribute' => 'id',
+            'table' => QueryLog::getTable(),
+            'ascending' => false
+        ];
+
+        $data = QueryLog::get($page, null, $sort);
 
         $this->assertNotEmpty($data);
+
+        $this->assertLessThanOrEqual($page->limit, count($data));
 
         $this->assertInternalType('array', $data);
 

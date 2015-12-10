@@ -18,6 +18,7 @@
 namespace Phramework\QueryLogJSONAPI\Models;
 
 use \Phramework\JSONAPI\Relationship;
+use \Phramework\Model\Operator;
 
 /**
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
@@ -29,18 +30,36 @@ class QueryLog extends \Phramework\JSONAPI\Model
     protected static $endpoint = 'query_log';
     protected static $table = 'query_log';
 
+    /**
+     * @todo add query as CLASS_LIKE
+     * @todo add parameters AS json
+     * @todo add call_trace AS json
+     * @todo add additional_parameters AS json
+     */
     public static function getFilterable()
     {
         return [
             'duration' => Operator::CLASS_ORDERABLE,
-            'created_timestamp' => Operator::CLASS_ORDERABLE
+            'created_timestamp' => Operator::CLASS_ORDERABLE,
+            'request_id' => Operator:: CLASS_COMPARABLE,
+            'function' => Operator:: CLASS_COMPARABLE,
+            'URI' => Operator:: CLASS_COMPARABLE,
+            'user_id' => Operator:: CLASS_COMPARABLE | Operator::CLASS_NULLABLE,
         ];
     }
 
     public static function getSort()
     {
         return (object)[
-            'attributes' => ['id', 'created_timestamp', 'duration'],
+            'attributes' => [
+                'id',
+                'created_timestamp',
+                'duration',
+                'request_id',
+                'function',
+                'URI',
+                'user_id'
+            ],
             'default' => 'id',
             'ascending' => false
         ];
@@ -63,6 +82,8 @@ class QueryLog extends \Phramework\JSONAPI\Model
             false
         );
 
+        QueryLogAdapter::prepare();
+
         $records = QueryLogAdapter::executeAndFetchAll($query);
 
         foreach ($records as &$record) {
@@ -81,6 +102,8 @@ class QueryLog extends \Phramework\JSONAPI\Model
      */
     public static function getById($id)
     {
+        QueryLogAdapter::prepare();
+
         $record = QueryLogAdapter::executeAndFetch(
             'SELECT *
             FROM "query_log"
