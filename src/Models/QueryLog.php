@@ -18,7 +18,7 @@
 namespace Phramework\QueryLogJSONAPI\Models;
 
 use \Phramework\JSONAPI\Relationship;
-use \Phramework\Model\Operator;
+use \Phramework\Models\Operator;
 
 /**
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
