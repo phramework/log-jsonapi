@@ -45,6 +45,7 @@ class QueryLog extends \Phramework\JSONAPI\Model
             'function' => Operator:: CLASS_COMPARABLE,
             'URI' => Operator:: CLASS_COMPARABLE,
             'user_id' => Operator:: CLASS_COMPARABLE | Operator::CLASS_NULLABLE,
+            'method' => Operator:: CLASS_COMPARABLE,
         ];
     }
 
@@ -58,7 +59,8 @@ class QueryLog extends \Phramework\JSONAPI\Model
                 'request_id',
                 'function',
                 'URI',
-                'user_id'
+                'user_id',
+                'method'
             ],
             'default' => 'id',
             'ascending' => false
@@ -71,18 +73,30 @@ class QueryLog extends \Phramework\JSONAPI\Model
      */
     public static function get($page = null, $filter = null, $sort = null)
     {
+        QueryLogAdapter::prepare();
+
+        $schema = QueryLogAdapter::getSchema();
+
+        $schema = (
+            $schema
+            ? sprintf('"%s".', $schema)
+            : ''
+        );
+
         $query = self::handleGet(
-            'SELECT * FROM "query_log"
-              {{filter}}
-              {{sort}}
-              {{pagination}}',
+            sprintf(
+                'SELECT *
+                FROM %s"query_log"
+                  {{filter}}
+                  {{sort}}
+                  {{pagination}}',
+                $schema
+            ),
             $page,
             $filter,
             $sort,
             false
         );
-
-        QueryLogAdapter::prepare();
 
         $records = QueryLogAdapter::executeAndFetchAll($query);
 
@@ -104,11 +118,22 @@ class QueryLog extends \Phramework\JSONAPI\Model
     {
         QueryLogAdapter::prepare();
 
+        $schema = QueryLogAdapter::getSchema();
+
+        $schema = (
+            $schema
+            ? sprintf('"%s".', $schema)
+            : ''
+        );
+
         $record = QueryLogAdapter::executeAndFetch(
-            'SELECT *
-            FROM "query_log"
-            WHERE "id" = ?
-            LIMIT 1',
+            sprintf(
+                'SELECT *
+                FROM %s"query_log"
+                WHERE "id" = ?
+                LIMIT 1',
+                $schema
+            ),
             [$id]
         );
 

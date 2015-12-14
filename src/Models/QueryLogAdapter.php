@@ -28,6 +28,8 @@ class QueryLogAdapter extends \Phramework\Database\Database
      */
     protected static $adapter = null;
 
+    protected static $schema = null;
+
     public static function prepare()
     {
         if (static::$adapter !== null) {
@@ -50,6 +52,26 @@ class QueryLogAdapter extends \Phramework\Database\Database
             ));
         }
 
+        if (isset($dbSettings['schema'])) {
+            self::$schema = $dbSettings['schema'];
+        }
+
         static::setAdapter($adapter);
+    }
+
+    /**
+     * @return IAdapter
+     */
+    public static function getAdapter()
+    {
+        return static::$adapter;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getSchema()
+    {
+        return static::$schema;
     }
 }
