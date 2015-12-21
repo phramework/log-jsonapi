@@ -12,9 +12,6 @@
   "repositories": [{
     "type": "vcs",
     "url": "git@gitlab.mathlogic.eu:Phramework/jsonapi.git"
-  }, {
-    "type": "vcs",
-    "url": "git@gitlab.mathlogic.eu:Phramework/query-log.git"
   }],
   "autoload": {
     "psr-4": {
