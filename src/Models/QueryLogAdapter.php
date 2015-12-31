@@ -41,9 +41,13 @@ class QueryLogAdapter extends \Phramework\Database\Database
             'database'
         );
 
-        $adapterNamespace = $dbSettings['adapter'];
+        if (is_array($dbSettings)) {
+            $dbSettings = (object)$dbSettings;
+        }
 
-        $adapter = new $adapterNamespace($dbSettings);
+        $adapterNamespace = $dbSettings->adapter;
+
+        $adapter = new $adapterNamespace((array)$dbSettings);
 
         if (!($adapter instanceof \Phramework\Database\IAdapter)) {
             throw new \Exception(sprintf(
@@ -52,8 +56,8 @@ class QueryLogAdapter extends \Phramework\Database\Database
             ));
         }
 
-        if (isset($dbSettings['schema'])) {
-            self::$schema = $dbSettings['schema'];
+        if (isset($dbSettings->schema)) {
+            self::$schema = $dbSettings->schema;
         }
 
         static::setAdapter($adapter);

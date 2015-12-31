@@ -29,6 +29,11 @@ use \Phramework\QueryLogJSONAPI\Models\QueryLog;
 class QueryLogController extends \Phramework\JSONAPI\Controller
 {
     /**
+     * @var string
+     */
+    private static $queryLogModel = QueryLog::class;
+
+    /**
      * Get collection
      * @param  array  $params   Request parameters
      * @param  string $method   Request method
@@ -38,7 +43,7 @@ class QueryLogController extends \Phramework\JSONAPI\Controller
     {
         return self::handleGET(
             $params,
-            QueryLog::class,
+            static::$queryLogModel,
             [],
             [],
             true
@@ -60,9 +65,27 @@ class QueryLogController extends \Phramework\JSONAPI\Controller
         return self::handleGETById(
             $params,
             $id,
-            QueryLog::class,
+            static::$queryLogModel,
             [],
             []
         );
+    }
+
+    /**
+     * Get queryLogModel class path
+     * @return string
+     */
+    public function getQueryLogModel()
+    {
+        return $this->queryLogModel;
+    }
+
+    /**
+     * Set queryLogModel class path
+     * @param string queryLogModel
+     */
+    public function setQueryLogModel($queryLogModel)
+    {
+        $this->queryLogModel = $queryLogModel;
     }
 }

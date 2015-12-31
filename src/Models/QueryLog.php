@@ -46,6 +46,7 @@ class QueryLog extends \Phramework\JSONAPI\Model
             'URI' => Operator:: CLASS_COMPARABLE,
             'user_id' => Operator:: CLASS_COMPARABLE | Operator::CLASS_NULLABLE,
             'method' => Operator:: CLASS_COMPARABLE,
+            'exception' => Operator::CLASS_NULLABLE,
         ];
     }
 
@@ -83,7 +84,7 @@ class QueryLog extends \Phramework\JSONAPI\Model
             : ''
         );
 
-        $query = self::handleGet(
+        $query = static::handleGet(
             sprintf(
                 'SELECT *
                 FROM %s"query_log"
@@ -101,12 +102,10 @@ class QueryLog extends \Phramework\JSONAPI\Model
         $records = QueryLogAdapter::executeAndFetchAll($query);
 
         foreach ($records as &$record) {
-            $record['parameters'] = json_decode($record['parameters']);
-            $record['additional_parameters'] = json_decode($record['additional_parameters']);
-            $record['call_trace'] = json_decode($record['call_trace']);
+            static::prepareRecord($record);
         }
 
-        return self::collection($records);
+        return static::collection($records);
     }
 
     /**
@@ -120,6 +119,7 @@ class QueryLog extends \Phramework\JSONAPI\Model
 
         $schema = QueryLogAdapter::getSchema();
 
+        //Include schema if is set at current QuereLog database adapter
         $schema = (
             $schema
             ? sprintf('"%s".', $schema)
@@ -137,10 +137,23 @@ class QueryLog extends \Phramework\JSONAPI\Model
             [$id]
         );
 
+        static::prepareRecord($record);
+
+        return static::resource($record);
+    }
+
+    /**
+     * Helper method, applies directly the required transformations to a database record
+     * @param  array $record A database record
+     */
+    private static function prepareRecord(&$record)
+    {
+        if (!$record) {
+            return;
+        }
+
         $record['parameters'] = json_decode($record['parameters']);
         $record['additional_parameters'] = json_decode($record['additional_parameters']);
         $record['call_trace'] = json_decode($record['call_trace']);
-
-        return self::resource($record);
     }
 }

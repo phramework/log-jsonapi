@@ -25,9 +25,9 @@
   },
   "require": {
     "php": ">=5.6",
-    "phramework/phramework": "^1.0.3",
+    "phramework/phramework": "^1.1",
     "phramework/jsonapi": "^0.0.0",
-    "phramework/query-log": "dev-master",
+    "phramework/query-log": "^0.0.0",
     "ext-pdo": "*",
     "ext-pdo_mysql": "*"
   },

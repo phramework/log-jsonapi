@@ -27,8 +27,8 @@ class Bootstrap
     {
         $settings = [
             'debug' => true,
-            'query-log' => [
-                'database' => [
+            'query-log' => (object)[
+                'database' => (object)[
                     'adapter' => '\\Phramework\\Database\\MySQL',
                     'host' => '',
                     'username' => '',
@@ -73,5 +73,7 @@ class Bootstrap
                 ]
             ])
         );
+
+        return $phramework;
     }
 }
