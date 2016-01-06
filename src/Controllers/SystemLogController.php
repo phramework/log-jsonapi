@@ -15,23 +15,23 @@
  * limitations under the License.
  */
 
-namespace Phramework\QueryLogJSONAPI\Controllers;
+namespace Phramework\SystemLogJSONAPI\Controllers;
 
 use \Phramework\Phramework;
 use \Phramework\Models\Request;
-use \Phramework\QueryLogJSONAPI\Models\QueryLog;
+use \Phramework\SystemLogJSONAPI\Models\SystemLog;
 
 /**
- * Controller for query-log
+ * Controller for system-log
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Xenofon Spafaridis <nohponex@gmail.com>
  */
-class QueryLogController extends \Phramework\JSONAPI\Controller
+class SystemLogController extends \Phramework\JSONAPI\Controller
 {
     /**
      * @var string
      */
-    private static $queryLogModel = QueryLog::class;
+    private static $systemLogModel = SystemLog::class;
 
     /**
      * Get collection
@@ -43,7 +43,7 @@ class QueryLogController extends \Phramework\JSONAPI\Controller
     {
         return self::handleGET(
             $params,
-            static::$queryLogModel,
+            static::$systemLogModel,
             [],
             [],
             true
@@ -65,27 +65,27 @@ class QueryLogController extends \Phramework\JSONAPI\Controller
         return self::handleGETById(
             $params,
             $id,
-            static::$queryLogModel,
+            static::$systemLogModel,
             [],
             []
         );
     }
 
     /**
-     * Get queryLogModel class path
+     * Get SystemLogModel class path
      * @return string
      */
-    public function getQueryLogModel()
+    public function getSystemLogModel()
     {
-        return static::$queryLogModel;
+        return static::$systemLogModel;
     }
 
     /**
-     * Set queryLogModel class path
-     * @param string queryLogModel
+     * Set SystemLogModel class path
+     * @param string $systemLogModel
      */
-    public function setQueryLogModel($queryLogModel)
+    public function setSystemLogModel($systemLogModel)
     {
-        static::$queryLogModel = $queryLogModel;
+        static::$systemLogModel = $systemLogModel;
     }
 }

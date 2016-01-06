@@ -24,25 +24,22 @@ use \Phramework\Models\Operator;
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Xenofon Spafaridis <nohponex@gmail.com>
  */
-class QueryLog extends \Phramework\JSONAPI\Model
+class SystemLog extends \Phramework\JSONAPI\Model
 {
-    protected static $type = 'query_log';
-    protected static $endpoint = 'query_log';
-    protected static $table = 'query_log';
+    protected static $type = 'system_log';
+    protected static $endpoint = 'system_log';
+    protected static $table = 'system_log';
 
-    /**
-     * @todo add query as CLASS_LIKE
-     * @todo add parameters AS json
-     * @todo add call_trace AS json
-     * @todo add additional_parameters AS json
-     */
     public static function getFilterable()
     {
         return [
-            'duration' => Operator::CLASS_ORDERABLE,
-            'created_timestamp' => Operator::CLASS_ORDERABLE,
+            'id' => Operator:: CLASS_COMPARABLE,
+            'ip_address' => Operator:: CLASS_COMPARABLE,
+            'request_timestamp' => Operator::CLASS_ORDERABLE,
             'request_id' => Operator:: CLASS_COMPARABLE,
-            'function' => Operator:: CLASS_COMPARABLE,
+            'response_timestamp' => Operator::CLASS_ORDERABLE,
+            'response_status_code' => Operator::CLASS_ORDERABLE,
+            'flags' => Operator::CLASS_ORDERABLE,
             'URI' => Operator:: CLASS_COMPARABLE,
             'user_id' => Operator:: CLASS_COMPARABLE | Operator::CLASS_NULLABLE,
             'method' => Operator:: CLASS_COMPARABLE,
@@ -55,10 +52,9 @@ class QueryLog extends \Phramework\JSONAPI\Model
         return (object)[
             'attributes' => [
                 'id',
-                'created_timestamp',
-                'duration',
-                'request_id',
-                'function',
+                'request_timestamp',
+                'response_timestamp',
+                'response_status_code',
                 'URI',
                 'user_id',
                 'method'
@@ -74,11 +70,11 @@ class QueryLog extends \Phramework\JSONAPI\Model
      */
     public static function get($page = null, $filter = null, $sort = null)
     {
-        QueryLogAdapter::prepare();
+        SystemLogAdapter::prepare();
 
-        $table = static::$table = QueryLogAdapter::getTable();
+        $table = static::$table = SystemLogAdapter::getTable();
 
-        $schema = QueryLogAdapter::getSchema();
+        $schema = SystemLogAdapter::getSchema();
 
         $schema = (
             $schema
@@ -102,7 +98,7 @@ class QueryLog extends \Phramework\JSONAPI\Model
             false
         );
 
-        $records = QueryLogAdapter::executeAndFetchAll($query);
+        $records = SystemLogAdapter::executeAndFetchAll($query);
 
         foreach ($records as &$record) {
             static::prepareRecord($record);
@@ -118,11 +114,11 @@ class QueryLog extends \Phramework\JSONAPI\Model
      */
     public static function getById($id, $raw = false)
     {
-        QueryLogAdapter::prepare();
+        SystemLogAdapter::prepare();
 
-        $table = static::$table = QueryLogAdapter::getTable();
+        $table = static::$table = SystemLogAdapter::getTable();
 
-        $schema = QueryLogAdapter::getSchema();
+        $schema = SystemLogAdapter::getSchema();
 
         //Include schema if is set at current QuereLog database adapter
         $schema = (
@@ -131,7 +127,7 @@ class QueryLog extends \Phramework\JSONAPI\Model
             : ''
         );
 
-        $record = QueryLogAdapter::executeAndFetch(
+        $record = SystemLogAdapter::executeAndFetch(
             sprintf(
                 'SELECT *
                 FROM %s"%s"
@@ -153,34 +149,52 @@ class QueryLog extends \Phramework\JSONAPI\Model
     }
 
     /**
+     * Helper method, applies directly the required transformations to a database record
+     * @param array $record A database record
+     */
+    private static function prepareRecord(&$record)
+    {
+        if (!$record) {
+            return null;
+        }
+
+        $record['request_params'] = json_decode($record['request_params']);
+        $record['request_headers'] = json_decode($record['request_headers']);
+        $record['additional_parameters'] = json_decode($record['additional_parameters']);
+        $record['call_trace'] = json_decode($record['call_trace']);
+        $record['response_headers'] = json_decode($record['response_headers']);
+        $record['errors'] = json_decode($record['errors']);
+    }
+
+    /**
      * Return only ids
-     * @param  integer $systemLogId Foreign key
+     * @param  integer $queryLogId Foreign key
      * @return integer[]
      */
-    public static function getRelationshipBySystem_log($systemLogId)
+    public static function getRelationshipByQuery_log($queryLogId)
     {
-        $systemLogObject = SystemLog::getById($systemLogId, true);
+        $queryLogObject = QueryLog::getById($queryLogId, true);
 
-        if (!$systemLogObject) {
+        if (!$queryLogObject) {
             return [];
         }
 
-        $requestId = $systemLogObject->request_id;
+        $requestId = $queryLogObject->request_id;
 
-        QueryLogAdapter::prepare();
+        SystemLogAdapter::prepare();
 
-        $table = static::$table = QueryLogAdapter::getTable();
+        $table = static::$table = SystemLogAdapter::getTable();
 
-        $schema = QueryLogAdapter::getSchema();
+        $schema = SystemLogAdapter::getSchema();
 
-        //Include schema if is set at current QuereLog database adapter
+        //Include schema if is set
         $schema = (
             $schema
             ? sprintf('"%s".', $schema)
             : ''
         );
 
-        return QueryLogAdapter::executeAndFetchAllArray(
+        return SystemLogAdapter::executeAndFetchAllArray(
             sprintf(
                 'SELECT "id"
                 FROM %s"%s"
@@ -193,32 +207,17 @@ class QueryLog extends \Phramework\JSONAPI\Model
     }
 
     /**
-     * Helper method, applies directly the required transformations to a database record
-     * @param  array $record A database record
-     */
-    private static function prepareRecord(&$record)
-    {
-        if (!$record) {
-            return;
-        }
-
-        $record['parameters'] = json_decode($record['parameters']);
-        $record['additional_parameters'] = json_decode($record['additional_parameters']);
-        $record['call_trace'] = json_decode($record['call_trace']);
-    }
-
-    /**
      * Get resource's relationships
      * @return object Object with Phramework\JSONAPI\Relationship as values
      */
     public static function getRelationships()
     {
         return (object)[
-            'system_log' => new Relationship(
-                'system_log_id',
-                'system_log',
+            'query_log' => new Relationship(
+                'query_log_id',
+                'query_log',
                 Relationship::TYPE_TO_MANY,
-                SystemLog::class,
+                QueryLog::class,
                 'id'
             ),
         ];

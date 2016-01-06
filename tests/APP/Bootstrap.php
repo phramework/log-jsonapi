@@ -29,7 +29,17 @@ class Bootstrap
             'debug' => true,
             'query-log' => (object)[
                 'database' => (object)[
-                    'adapter' => '\\Phramework\\Database\\MySQL',
+                    'adapter' => 'Phramework\\Database\\MySQL',
+                    'host' => '',
+                    'username' => '',
+                    'password' => '',
+                    'name' => '',
+                    'port' => 3306
+                ]
+            ],
+            'system-log' => (object)[
+                'database-log' => (object)[
+                    'adapter' => 'Phramework\\Database\\MySQL',
                     'host' => '',
                     'username' => '',
                     'password' => '',
@@ -68,6 +78,18 @@ class Bootstrap
                 [
                     'query_log/{id}',
                     \Phramework\QueryLogJSONAPI\Controllers\QueryLogController::class,
+                    'GETById',
+                    Phramework::METHOD_GET
+                ],
+                [
+                    'system_log/',
+                    \Phramework\QueryLogJSONAPI\Controllers\SystemLogController::class,
+                    'GET',
+                    Phramework::METHOD_GET
+                ],
+                [
+                    'system_log/{id}',
+                    \Phramework\QueryLogJSONAPI\Controllers\SystemLogController::class,
                     'GETById',
                     Phramework::METHOD_GET
                 ]

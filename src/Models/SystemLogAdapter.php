@@ -21,7 +21,7 @@ namespace Phramework\QueryLogJSONAPI\Models;
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
  * @author Xenofon Spafaridis <nohponex@gmail.com>
  */
-class QueryLogAdapter extends \Phramework\Database\Database
+class SystemLogAdapter extends \Phramework\Database\Database
 {
     /**
      * @var Phramework\Database\IAdapter
@@ -36,7 +36,7 @@ class QueryLogAdapter extends \Phramework\Database\Database
     /**
      * @var string
      */
-    protected static $table  = 'query_log';
+    protected static $table  = 'system_log';
 
     public static function prepare()
     {
@@ -45,8 +45,8 @@ class QueryLogAdapter extends \Phramework\Database\Database
         }
 
         $dbSettings = \Phramework\Phramework::getSetting(
-            'query-log',
-            'database'
+            'system-log',
+            'database-log'
         );
 
         if (is_array($dbSettings)) {
@@ -71,7 +71,7 @@ class QueryLogAdapter extends \Phramework\Database\Database
         static::$table = (
             isset($dbSettings->table)
             ? $dbSettings->table
-            : 'query_log'
+            : 'system_log'
         );
 
         static::setAdapter($adapter);

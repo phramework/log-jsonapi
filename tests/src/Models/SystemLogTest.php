@@ -23,7 +23,7 @@ use \Phramework\Phramework;
 * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
 * @author Xenofon Spafaridis <nohponex@gmail.com>
  */
-class QueryLogTest extends \PHPUnit_Framework_TestCase
+class SystemLogTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var phramework
@@ -48,10 +48,12 @@ class QueryLogTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phramework\QueryLogJSONAPI\Models\QueryLog::get
+     * @covers Phramework\QueryLogJSONAPI\Models\SystemLog::get
      */
     public function testGet()
     {
+        SystemLogAdapter::prepare();
+
         $page = (object)[
             'limit' => 2,
             'offset' => 1
@@ -59,11 +61,11 @@ class QueryLogTest extends \PHPUnit_Framework_TestCase
 
         $sort = (object)[
             'attribute' => 'id',
-            'table' => QueryLog::getTable(),
+            'table' => SystemLogAdapter::getTable(),
             'ascending' => false
         ];
 
-        $data = QueryLog::get($page, null, $sort);
+        $data = SystemLog::get($page, null, $sort);
 
         $this->assertNotEmpty($data);
 
@@ -82,12 +84,12 @@ class QueryLogTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testGet
-     * @covers Phramework\QueryLogJSONAPI\Models\QueryLog::getById
+     * @covers Phramework\QueryLogJSONAPI\Models\SystemLog::getById
      */
     public function testGetById($id)
     {
-        $data = QueryLog::getById($id);
-        
+        $data = SystemLog::getById($id);
+
         $this->assertNotNull($data);
 
         $this->assertInternalType('object', $data);
