@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-namespace Phramework\QueryLogJSONAPI\Models;
+namespace Phramework\LogJSONAPI\Models;
 
 use \Phramework\JSONAPI\Relationship;
 use \Phramework\Models\Operator;

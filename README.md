@@ -1,7 +1,8 @@
-# system-log-jsonapi
-Provides models and controllers based on jsonapi specification for query-log package
+# query-log-jsonapi
+Provides models and controllers based on jsonapi specification for query-log and system-log package
 
-## Install
+## Development
+### Install
 
 ```bash
 composer update

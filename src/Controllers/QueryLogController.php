@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-namespace Phramework\QueryLogJSONAPI\Controllers;
+namespace Phramework\LogJSONAPI\Controllers;
 
 use \Phramework\Phramework;
 use \Phramework\Models\Request;
-use \Phramework\QueryLogJSONAPI\Models\QueryLog;
+use \Phramework\LogJSONAPI\Models\QueryLog;
 
 /**
  * Controller for query-log

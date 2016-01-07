@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-namespace Phramework\QueryLogJSONAPI\Models;
+namespace Phramework\LogJSONAPI\Models;
 
 use \Phramework\Phramework;
 
@@ -36,7 +36,7 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         //Prepare phramework instance
-        $this->phramework = \Phramework\QueryLogJSONAPI\APP\Bootstrap::prepare();
+        $this->phramework = \Phramework\LogJSONAPI\APP\Bootstrap::prepare();
     }
 
     /**
@@ -48,7 +48,7 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phramework\QueryLogJSONAPI\Models\SystemLog::get
+     * @covers Phramework\LogJSONAPI\Models\SystemLog::get
      */
     public function testGet()
     {
@@ -84,7 +84,7 @@ class SystemLogTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testGet
-     * @covers Phramework\QueryLogJSONAPI\Models\SystemLog::getById
+     * @covers Phramework\LogJSONAPI\Models\SystemLog::getById
      */
     public function testGetById($id)
     {

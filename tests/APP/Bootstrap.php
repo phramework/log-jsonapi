@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-namespace Phramework\QueryLogJSONAPI\APP;
+namespace Phramework\LogJSONAPI\APP;
 
 use \Phramework\Phramework;
 
@@ -71,25 +71,25 @@ class Bootstrap
             new \Phramework\URIStrategy\URITemplate([
                 [
                     'query_log/',
-                    \Phramework\QueryLogJSONAPI\Controllers\QueryLogController::class,
+                    \Phramework\LogJSONAPI\Controllers\QueryLogController::class,
                     'GET',
                     Phramework::METHOD_GET
                 ],
                 [
                     'query_log/{id}',
-                    \Phramework\QueryLogJSONAPI\Controllers\QueryLogController::class,
+                    \Phramework\LogJSONAPI\Controllers\QueryLogController::class,
                     'GETById',
                     Phramework::METHOD_GET
                 ],
                 [
                     'system_log/',
-                    \Phramework\QueryLogJSONAPI\Controllers\SystemLogController::class,
+                    \Phramework\LogJSONAPI\Controllers\SystemLogController::class,
                     'GET',
                     Phramework::METHOD_GET
                 ],
                 [
                     'system_log/{id}',
-                    \Phramework\QueryLogJSONAPI\Controllers\SystemLogController::class,
+                    \Phramework\LogJSONAPI\Controllers\SystemLogController::class,
                     'GETById',
                     Phramework::METHOD_GET
                 ]

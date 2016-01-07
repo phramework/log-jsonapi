@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-namespace Phramework\QueryLogJSONAPI\Models;
+namespace Phramework\LogJSONAPI\Models;
 
 use \Phramework\Phramework;
 
@@ -36,7 +36,7 @@ class QueryLogTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         //Prepare phramework instance
-        $this->phramework = \Phramework\QueryLogJSONAPI\APP\Bootstrap::prepare();
+        $this->phramework = \Phramework\LogJSONAPI\APP\Bootstrap::prepare();
     }
 
     /**
@@ -48,7 +48,7 @@ class QueryLogTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Phramework\QueryLogJSONAPI\Models\QueryLog::get
+     * @covers Phramework\LogJSONAPI\Models\QueryLog::get
      */
     public function testGet()
     {
@@ -82,12 +82,12 @@ class QueryLogTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testGet
-     * @covers Phramework\QueryLogJSONAPI\Models\QueryLog::getById
+     * @covers Phramework\LogJSONAPI\Models\QueryLog::getById
      */
     public function testGetById($id)
     {
         $data = QueryLog::getById($id);
-        
+
         $this->assertNotNull($data);
 
         $this->assertInternalType('object', $data);

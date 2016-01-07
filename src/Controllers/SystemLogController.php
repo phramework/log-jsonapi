@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-namespace Phramework\SystemLogJSONAPI\Controllers;
+namespace Phramework\LogJSONAPI\Controllers;
 
 use \Phramework\Phramework;
 use \Phramework\Models\Request;
-use \Phramework\SystemLogJSONAPI\Models\SystemLog;
+use \Phramework\LogJSONAPI\Models\SystemLog;
 
 /**
  * Controller for system-log
