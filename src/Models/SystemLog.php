@@ -66,10 +66,17 @@ class SystemLog extends \Phramework\JSONAPI\Model
 
     /**
      * Get all entries
-     * @return \stdClass[]
+     * @return object[]
      */
     public static function get($page = null, $filter = null, $sort = null)
     {
+        if (!$page) {
+            $page = (object)[
+                'limit' => 100,
+                'offset' => 0
+            ];
+        }
+
         SystemLogAdapter::prepare();
 
         $table = static::$table = SystemLogAdapter::getTable();
@@ -81,6 +88,11 @@ class SystemLog extends \Phramework\JSONAPI\Model
             ? sprintf('"%s".', $schema)
             : ''
         );
+
+        //Hack, problem when default table is changed the the configuration
+        if ($sort && isset($sort->table)) {
+            $sort->table = $table;
+        }
 
         $query = static::handleGet(
             sprintf(
@@ -110,7 +122,7 @@ class SystemLog extends \Phramework\JSONAPI\Model
     /**
      * Get a single entry by id
      * @param int $id Resource's id
-     * @return \stdClass|null
+     * @return object|null
      */
     public static function getById($id, $raw = false)
     {
@@ -151,6 +163,7 @@ class SystemLog extends \Phramework\JSONAPI\Model
     /**
      * Helper method, applies directly the required transformations to a database record
      * @param array $record A database record
+     * @return null
      */
     private static function prepareRecord(&$record)
     {

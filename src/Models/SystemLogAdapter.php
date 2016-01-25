@@ -49,6 +49,12 @@ class SystemLogAdapter extends \Phramework\Database\Database
             'database-log'
         );
 
+        if (!$dbSettings) {
+            throw new \Phramework\Exceptions\ServerException(
+                'system-log.database-log is not configured'
+            );
+        }
+
         if (is_array($dbSettings)) {
             $dbSettings = (object)$dbSettings;
         }

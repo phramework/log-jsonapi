@@ -50,6 +50,9 @@ class QueryLog extends \Phramework\JSONAPI\Model
         ];
     }
 
+    /**
+     * @return object
+     */
     public static function getSort()
     {
         return (object)[
@@ -70,10 +73,17 @@ class QueryLog extends \Phramework\JSONAPI\Model
 
     /**
      * Get all entries
-     * @return \stdClass[]
+     * @return object[]
      */
     public static function get($page = null, $filter = null, $sort = null)
     {
+        if (!$page) {
+            $page = (object)[
+                'limit' => 100,
+                'offset' => 0
+            ];
+        }
+
         QueryLogAdapter::prepare();
 
         $table = static::$table = QueryLogAdapter::getTable();
@@ -86,6 +96,11 @@ class QueryLog extends \Phramework\JSONAPI\Model
             : ''
         );
 
+        //Hack, problem when default table is changed the the configuration
+        if ($sort && isset($sort->table)) {
+            $sort->table = $table;
+        }
+        
         $query = static::handleGet(
             sprintf(
                 'SELECT *
@@ -114,7 +129,7 @@ class QueryLog extends \Phramework\JSONAPI\Model
     /**
      * Get a single entry by id
      * @param int $id Resource's id
-     * @return \stdClass|null
+     * @return object|null
      */
     public static function getById($id, $raw = false)
     {

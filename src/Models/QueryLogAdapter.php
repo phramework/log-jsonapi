@@ -49,6 +49,12 @@ class QueryLogAdapter extends \Phramework\Database\Database
             'database'
         );
 
+        if (!$dbSettings) {
+            throw new \Phramework\Exceptions\ServerException(
+                'query-log.database is not configured'
+            );
+        }
+
         if (is_array($dbSettings)) {
             $dbSettings = (object)$dbSettings;
         }
