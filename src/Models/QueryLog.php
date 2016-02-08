@@ -17,8 +17,15 @@
 
 namespace Phramework\LogJSONAPI\Models;
 
-use \Phramework\JSONAPI\Relationship;
-use \Phramework\Models\Operator;
+use Phramework\Database\Database;
+use Phramework\JSONAPI\Fields;
+use Phramework\JSONAPI\Filter;
+use Phramework\JSONAPI\Page;
+use Phramework\JSONAPI\Relationship;
+use Phramework\JSONAPI\Sort;
+use Phramework\Models\Operator;
+use Phramework\Validate\ObjectValidator;
+use Phramework\Validate\UnsignedIntegerValidator;
 
 /**
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
@@ -96,23 +103,23 @@ class QueryLog extends \Phramework\JSONAPI\Model
         $schema = QueryLogAdapter::getSchema();
 
         $schema = (
-            $schema
+        $schema
             ? sprintf('"%s".', $schema)
             : ''
         );
 
         //Hack, problem when default table is changed the the configuration
-        if ($sort !== null && isset($sort->table)) {
-            $sort->table = $table;
-        }
-        
+        //if ($sort !== null && isset($sort->table)) {
+        //    $sort->table = $table;
+        //}
+
         $query = static::handleGet(
             sprintf(
                 'SELECT {{fields}}
                 FROM %s"%s"
                   {{filter}}
                   {{sort}}
-                  {{pagination}}',
+                  {{page}}',
                 $schema,
                 $table
             ),
@@ -139,13 +146,13 @@ class QueryLog extends \Phramework\JSONAPI\Model
      */
     public static function getRelationshipBySystemLog($systemLogId)
     {
-        $systemLogObject = SystemLog::getById($systemLogId, true);
+        $systemLogObject = SystemLog::getById($systemLogId);
 
         if (!$systemLogObject) {
             return [];
         }
 
-        $requestId = $systemLogObject->request_id;
+        $requestId = $systemLogObject->attributes->request_id;
 
         QueryLogAdapter::prepare();
 
@@ -155,7 +162,7 @@ class QueryLog extends \Phramework\JSONAPI\Model
 
         //Include schema if is set at current QuereLog database adapter
         $schema = (
-            $schema
+        $schema
             ? sprintf('"%s".', $schema)
             : ''
         );
@@ -187,6 +194,11 @@ class QueryLog extends \Phramework\JSONAPI\Model
         $record['parameters'] = json_decode($record['parameters']);
         $record['additional_parameters'] = json_decode($record['additional_parameters']);
         $record['call_trace'] = json_decode($record['call_trace']);
+    }
+
+    public static function getDefaultPage()
+    {
+        return new Page(50);
     }
 
     /**

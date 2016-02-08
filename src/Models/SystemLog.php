@@ -17,8 +17,15 @@
 
 namespace Phramework\LogJSONAPI\Models;
 
-use \Phramework\JSONAPI\Relationship;
-use \Phramework\Models\Operator;
+use Phramework\Database\Database;
+use Phramework\JSONAPI\Fields;
+use Phramework\JSONAPI\Filter;
+use Phramework\JSONAPI\Page;
+use Phramework\JSONAPI\Relationship;
+use Phramework\JSONAPI\Sort;
+use Phramework\Models\Operator;
+use Phramework\Validate\ObjectValidator;
+use Phramework\Validate\UnsignedIntegerValidator;
 
 /**
  * @license https://www.apache.org/licenses/LICENSE-2.0 Apache-2.0
@@ -32,7 +39,7 @@ class SystemLog extends \Phramework\JSONAPI\Model
 
     public static function getFilterable()
     {
-        return [
+        return (object) [
             'id' => Operator:: CLASS_COMPARABLE,
             'ip_address' => Operator:: CLASS_COMPARABLE,
             'request_timestamp' => Operator::CLASS_ORDERABLE,
@@ -62,6 +69,9 @@ class SystemLog extends \Phramework\JSONAPI\Model
 
     public static function getSort()
     {
+        SystemLogAdapter::prepare();
+        $table = static::$table = SystemLogAdapter::getTable();
+
         return new Sort(static::getTable(), 'id', false);
     }
 
@@ -88,15 +98,15 @@ class SystemLog extends \Phramework\JSONAPI\Model
         $schema = SystemLogAdapter::getSchema();
 
         $schema = (
-            $schema
+        $schema
             ? sprintf('"%s".', $schema)
             : ''
         );
 
         //Hack, problem when default table is changed the the configuration
-        if ($sort && isset($sort->table)) {
-            $sort->table = $table;
-        }
+        //if ($sort && isset($sort->table)) {
+        //    $sort->table = $table;
+        //}
 
         $query = static::handleGet(
             sprintf(
@@ -104,7 +114,7 @@ class SystemLog extends \Phramework\JSONAPI\Model
                 FROM %s"%s"
                   {{filter}}
                   {{sort}}
-                  {{pagination}}',
+                  {{page}}',
                 $schema,
                 $table
             ),
@@ -150,13 +160,13 @@ class SystemLog extends \Phramework\JSONAPI\Model
      */
     public static function getRelationshipByQueryLog($queryLogId)
     {
-        $queryLogObject = QueryLog::getById($queryLogId, true);
+        $queryLogObject = QueryLog::getById($queryLogId);
 
         if (!$queryLogObject) {
             return [];
         }
 
-        $requestId = $queryLogObject->request_id;
+        $requestId = $queryLogObject->attributes->request_id;
 
         SystemLogAdapter::prepare();
 
@@ -166,7 +176,7 @@ class SystemLog extends \Phramework\JSONAPI\Model
 
         //Include schema if is set
         $schema = (
-            $schema
+        $schema
             ? sprintf('"%s".', $schema)
             : ''
         );
@@ -183,6 +193,18 @@ class SystemLog extends \Phramework\JSONAPI\Model
         );
 
         return array_map('strval', $ids);
+    }
+
+    public static function getDefaultPage()
+    {
+        return new Page(50);
+    }
+
+    public static function getDefaultFields()
+    {
+        return new Fields((object) [
+            static::getType() => ['*']
+        ]);
     }
 
     /**
