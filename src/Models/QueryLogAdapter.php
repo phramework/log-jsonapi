@@ -24,7 +24,7 @@ namespace Phramework\LogJSONAPI\Models;
 class QueryLogAdapter extends \Phramework\Database\Database
 {
     /**
-     * @var Phramework\Database\IAdapter
+     * @var \Phramework\Database\IAdapter
      */
     protected static $adapter = null;
 
@@ -84,7 +84,7 @@ class QueryLogAdapter extends \Phramework\Database\Database
     }
 
     /**
-     * @return Phramework\Database\IAdapter
+     * @return \Phramework\Database\IAdapter
      */
     public static function getAdapter()
     {

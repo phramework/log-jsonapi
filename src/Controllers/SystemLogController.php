@@ -45,8 +45,7 @@ class SystemLogController extends \Phramework\JSONAPI\Controller
             $params,
             static::$systemLogModel,
             [],
-            [],
-            true
+            []
         );
     }
 

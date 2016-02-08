@@ -47,36 +47,40 @@ class SystemLog extends \Phramework\JSONAPI\Model
         ];
     }
 
-    public static function getSort()
+    public static function getSortable()
     {
-        return (object)[
-            'attributes' => [
-                'id',
-                'request_timestamp',
-                'response_timestamp',
-                'response_status_code',
-                'URI',
-                'user_id',
-                'method'
-            ],
-            'default' => 'id',
-            'ascending' => false
+        return [
+            'id',
+            'request_timestamp',
+            'response_timestamp',
+            'response_status_code',
+            'URI',
+            'user_id',
+            'method'
         ];
     }
 
-    /**
-     * Get all entries
-     * @return object[]
-     */
-    public static function get($page = null, $filter = null, $sort = null)
+    public static function getSort()
     {
-        if (!$page) {
-            $page = (object)[
-                'limit' => 100,
-                'offset' => 0
-            ];
-        }
+        return new Sort(static::getTable(), 'id', false);
+    }
 
+    /**
+     * Get collection of resources
+     * @param Page|null   $page
+     * @param Filter|null $filter
+     * @param Sort|null   $sort
+     * @param Fields|null $fields
+     * @param mixed       $additionalParameters Id of user who made the request, `$userId` is required
+     * @return Resource[]
+     */
+    public static function get(
+        Page $page = null,
+        Filter $filter = null,
+        Sort $sort = null,
+        Fields $fields = null,
+        ...$additionalParameters
+    ) {
         SystemLogAdapter::prepare();
 
         $table = static::$table = SystemLogAdapter::getTable();
@@ -96,7 +100,7 @@ class SystemLog extends \Phramework\JSONAPI\Model
 
         $query = static::handleGet(
             sprintf(
-                'SELECT *
+                'SELECT {{fields}}
                 FROM %s"%s"
                   {{filter}}
                   {{sort}}
@@ -107,6 +111,7 @@ class SystemLog extends \Phramework\JSONAPI\Model
             $page,
             $filter,
             $sort,
+            $fields,
             false
         );
 
@@ -117,47 +122,6 @@ class SystemLog extends \Phramework\JSONAPI\Model
         }
 
         return static::collection($records);
-    }
-
-    /**
-     * Get a single entry by id
-     * @param int $id Resource's id
-     * @return object|null
-     */
-    public static function getById($id, $raw = false)
-    {
-        SystemLogAdapter::prepare();
-
-        $table = static::$table = SystemLogAdapter::getTable();
-
-        $schema = SystemLogAdapter::getSchema();
-
-        //Include schema if is set at current QuereLog database adapter
-        $schema = (
-            $schema
-            ? sprintf('"%s".', $schema)
-            : ''
-        );
-
-        $record = SystemLogAdapter::executeAndFetch(
-            sprintf(
-                'SELECT *
-                FROM %s"%s"
-                WHERE "id" = ?
-                LIMIT 1',
-                $schema,
-                $table
-            ),
-            [$id]
-        );
-
-        static::prepareRecord($record);
-
-        if ($raw) {
-            return (object)$record;
-        }
-
-        return static::resource($record);
     }
 
     /**
@@ -184,7 +148,7 @@ class SystemLog extends \Phramework\JSONAPI\Model
      * @param  integer $queryLogId Foreign key
      * @return integer[]
      */
-    public static function getRelationshipByQuery_log($queryLogId)
+    public static function getRelationshipByQueryLog($queryLogId)
     {
         $queryLogObject = QueryLog::getById($queryLogId, true);
 
@@ -207,7 +171,7 @@ class SystemLog extends \Phramework\JSONAPI\Model
             : ''
         );
 
-        return SystemLogAdapter::executeAndFetchAllArray(
+        $ids = SystemLogAdapter::executeAndFetchAllArray(
             sprintf(
                 'SELECT "id"
                 FROM %s"%s"
@@ -217,6 +181,8 @@ class SystemLog extends \Phramework\JSONAPI\Model
             ),
             [$requestId]
         );
+
+        return array_map('strval', $ids);
     }
 
     /**
@@ -227,12 +193,11 @@ class SystemLog extends \Phramework\JSONAPI\Model
     {
         return (object)[
             'query_log' => new Relationship(
-                'query_log_id',
-                'query_log',
-                Relationship::TYPE_TO_MANY,
                 QueryLog::class,
-                'id'
-            ),
+                Relationship::TYPE_TO_MANY,
+                null,
+                [QueryLog::class, 'getRelationshipBySystemLog']
+            )
         ];
     }
 }

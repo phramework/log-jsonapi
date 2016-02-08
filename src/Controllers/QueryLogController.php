@@ -45,8 +45,7 @@ class QueryLogController extends \Phramework\JSONAPI\Controller
             $params,
             static::$queryLogModel,
             [],
-            [],
-            true
+            []
         );
     }
 
