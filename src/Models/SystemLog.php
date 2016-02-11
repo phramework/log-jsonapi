@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2015 Xenofon Spafaridis
+ * Copyright 2015-2016 Xenofon Spafaridis
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ use Phramework\JSONAPI\Relationship;
 use Phramework\JSONAPI\Sort;
 use Phramework\Models\Operator;
 use Phramework\Validate\ObjectValidator;
+use Phramework\Validate\StringValidator;
 use Phramework\Validate\UnsignedIntegerValidator;
 
 /**
@@ -37,43 +38,7 @@ class SystemLog extends \Phramework\JSONAPI\Model
     protected static $endpoint = 'system_log';
     protected static $table = 'system_log';
 
-    public static function getFilterable()
-    {
-        return (object) [
-            'id' => Operator:: CLASS_COMPARABLE,
-            'ip_address' => Operator:: CLASS_COMPARABLE,
-            'request_timestamp' => Operator::CLASS_ORDERABLE,
-            'request_id' => Operator:: CLASS_COMPARABLE,
-            'response_timestamp' => Operator::CLASS_ORDERABLE,
-            'response_status_code' => Operator::CLASS_ORDERABLE,
-            'flags' => Operator::CLASS_ORDERABLE,
-            'URI' => Operator:: CLASS_COMPARABLE,
-            'user_id' => Operator:: CLASS_COMPARABLE | Operator::CLASS_NULLABLE,
-            'method' => Operator:: CLASS_COMPARABLE,
-            'exception' => Operator::CLASS_NULLABLE,
-        ];
-    }
 
-    public static function getSortable()
-    {
-        return [
-            'id',
-            'request_timestamp',
-            'response_timestamp',
-            'response_status_code',
-            'URI',
-            'user_id',
-            'method'
-        ];
-    }
-
-    public static function getSort()
-    {
-        SystemLogAdapter::prepare();
-        $table = static::$table = SystemLogAdapter::getTable();
-
-        return new Sort(static::getTable(), 'id', false);
-    }
 
     /**
      * Get collection of resources
@@ -98,7 +63,7 @@ class SystemLog extends \Phramework\JSONAPI\Model
         $schema = SystemLogAdapter::getSchema();
 
         $schema = (
-        $schema
+            $schema
             ? sprintf('"%s".', $schema)
             : ''
         );
@@ -135,31 +100,165 @@ class SystemLog extends \Phramework\JSONAPI\Model
     }
 
     /**
-     * Helper method, applies directly the required transformations to a database record
-     * @param array $record A database record
-     * @return null
+     * @return object
      */
-    private static function prepareRecord(&$record)
+    public static function getFilterable()
     {
-        if (!$record) {
-            return null;
-        }
+        return (object) [
+            'id' => Operator:: CLASS_COMPARABLE,
+            'ip_address' => Operator:: CLASS_COMPARABLE,
+            'request_timestamp' => Operator::CLASS_ORDERABLE,
+            'request_id' => Operator:: CLASS_COMPARABLE,
+            'response_timestamp' => Operator::CLASS_ORDERABLE,
+            'response_status_code' => Operator::CLASS_ORDERABLE,
+            'flags' => Operator::CLASS_ORDERABLE,
+            'URI' => Operator:: CLASS_COMPARABLE | Operator::CLASS_LIKE,
+            'user_id' => Operator:: CLASS_COMPARABLE | Operator::CLASS_NULLABLE,
+            'method' => Operator:: CLASS_COMPARABLE,
+            'exception_class' => Operator:: CLASS_COMPARABLE | Operator::CLASS_NULLABLE,
+            'exception' => Operator::CLASS_JSONOBJECT | Operator::CLASS_NULLABLE,
+            'errors' => Operator::CLASS_JSONOBJECT | Operator::CLASS_NULLABLE,
+            'request_params' => Operator::CLASS_JSONOBJECT | Operator::CLASS_NULLABLE,
+            'request_headers' => Operator::CLASS_JSONOBJECT | Operator::CLASS_NULLABLE,
+            'response_headers' => Operator::CLASS_JSONOBJECT | Operator::CLASS_NULLABLE,
+            'response_body' => Operator::CLASS_JSONOBJECT | Operator::CLASS_NULLABLE,
+            'additional_parameters' => Operator::CLASS_JSONOBJECT | Operator::CLASS_NULLABLE,
+            'call_trace' => Operator::CLASS_JSONOBJECT | Operator::CLASS_NULLABLE,
+        ];
+    }
 
-        $record['request_params'] = json_decode($record['request_params']);
-        $record['request_headers'] = json_decode($record['request_headers']);
-        $record['additional_parameters'] = json_decode($record['additional_parameters']);
-        $record['call_trace'] = json_decode($record['call_trace']);
-        $record['response_headers'] = json_decode($record['response_headers']);
-        $record['errors'] = json_decode($record['errors']);
+    /**
+     * @return ObjectValidator
+     */
+    public static function getFilterValidationModel()
+    {
+        return new ObjectValidator((object) [
+            'id' => new UnsignedIntegerValidator(),
+            'ip_address' => new StringValidator(),
+            'request_timestamp' => new UnsignedIntegerValidator(),
+            'request_id' => new StringValidator(),
+            'response_timestamp' => new UnsignedIntegerValidator(),
+            'response_status_code' => new UnsignedIntegerValidator(),
+            'flags' => new UnsignedIntegerValidator(),
+            'URI' => new StringValidator(),
+            'user_id' => new StringValidator(),
+            'method' => new StringValidator(),
+            'exception_class' => new StringValidator(),
+            'exception' => new ObjectValidator(),
+            'errors' => new ObjectValidator(),
+            'request_params' => new ObjectValidator(),
+            'request_headers' => new ObjectValidator(),
+            'response_body' => new ObjectValidator(),
+            'response_body' => new ObjectValidator(),
+            'additional_parameters' => new ObjectValidator(),
+            'call_trace' => new ObjectValidator()
+        ]);
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function getFields()
+    {
+         return [
+            'id',
+            'request_timestamp',
+            'response_timestamp',
+            'response_status_code',
+            'URI',
+            'user_id',
+            'method',
+            'request_headers',
+            'request_params',
+            'response_headers',
+            'response_body',
+            'response_status_code',
+            'flags',
+            'additional_parameters',
+            'errors',
+            'exception',
+            'created',
+            'request_id',
+            'request_body_raw',
+            'exception_class',
+            'call_trace',
+            'ip_address'
+        ];
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function getSortable()
+    {
+        return [
+            'id',
+            'request_timestamp',
+            'response_timestamp',
+            'response_status_code',
+            'URI',
+            'user_id',
+            'method'
+        ];
+    }
+
+    public static function getSort()
+    {
+        SystemLogAdapter::prepare();
+        $table = static::$table = SystemLogAdapter::getTable();
+
+        return new Sort(static::getTable(), 'id', false);
+    }
+
+    /**
+     * Default is with page limit of 50
+     * @return Page
+     */
+    public static function getDefaultPage()
+    {
+        return new Page(50);
+    }
+
+    /**
+     * Default is 5000
+     * @return int
+     */
+    public static function getMaxPageLimit()
+    {
+        return 5000;
+    }
+
+    public static function getDefaultFields()
+    {
+        return new Fields((object) [
+            static::getType() => ['*']
+        ]);
+    }
+
+    /**
+     * Get resource's relationships
+     * @return object Object with Phramework\JSONAPI\Relationship as values
+     */
+    public static function getRelationships()
+    {
+        return (object)[
+            'query_log' => new Relationship(
+                QueryLog::class,
+                Relationship::TYPE_TO_MANY,
+                null,
+                [QueryLog::class, 'getRelationshipBySystemLog']
+            )
+        ];
     }
 
     /**
      * Return only ids
-     * @param  integer $queryLogId Foreign key
-     * @return integer[]
+     * @param  string $queryLogId Foreign key
+     * @return string[]
      */
     public static function getRelationshipByQueryLog($queryLogId)
     {
+        //Access QueryLog object by this id to get the request_id
         $queryLogObject = QueryLog::getById($queryLogId);
 
         if (!$queryLogObject) {
@@ -194,32 +293,39 @@ class SystemLog extends \Phramework\JSONAPI\Model
 
         return array_map('strval', $ids);
     }
-
-    public static function getDefaultPage()
-    {
-        return new Page(50);
-    }
-
-    public static function getDefaultFields()
-    {
-        return new Fields((object) [
-            static::getType() => ['*']
-        ]);
-    }
-
     /**
-     * Get resource's relationships
-     * @return object Object with Phramework\JSONAPI\Relationship as values
+     * Helper method, applies directly the required transformations to a database record
+     * @param array $record A database record
+     * @return array|null
      */
-    public static function getRelationships()
+    private static function prepareRecord(&$record)
     {
-        return (object)[
-            'query_log' => new Relationship(
-                QueryLog::class,
-                Relationship::TYPE_TO_MANY,
-                null,
-                [QueryLog::class, 'getRelationshipBySystemLog']
-            )
-        ];
+        if (!$record) {
+            return null;
+        }
+
+        if (isset($record['request_params'])) {
+            $record['request_params'] = json_decode($record['request_params']);
+        }
+
+        if (isset($record['request_headers'])) {
+            $record['request_headers'] = json_decode($record['request_headers']);
+        }
+
+        if (isset($record['additional_parameters'])) {
+            $record['additional_parameters'] = json_decode($record['additional_parameters']);
+        }
+
+        if (isset($record['call_trace'])) {
+            $record['call_trace'] = json_decode($record['call_trace']);
+        }
+
+        if (isset($record['response_headers'])) {
+            $record['response_headers'] = json_decode($record['response_headers']);
+        }
+
+        if (isset($record['errors'])) {
+            $record['errors'] = json_decode($record['errors']);
+        }
     }
 }
