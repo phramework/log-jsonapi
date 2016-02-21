@@ -1,5 +1,5 @@
 {
-  "name": "phramework/query-log-jsonapi",
+  "name": "phramework/log-jsonapi",
   "description": "Models and controllers based on jsonapi specification for query-log package",
   "license": "Apache-2.0",
   "homepage": "https://phramework.github.io/",
